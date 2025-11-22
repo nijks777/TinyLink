@@ -37,7 +37,7 @@ export async function createLink(
     VALUES (
       ${code},
       ${targetUrl},
-      CURRENT_TIMESTAMP + INTERVAL '${expiryDays} days'
+      CURRENT_TIMESTAMP + ${expiryDays} * INTERVAL '1 day'
     )
     RETURNING *
   `;
