@@ -26,21 +26,36 @@ export async function getLinkByCode(code: string): Promise<Link | null> {
   return rows[0] || null;
 }
 
-// Create a new link with optional expiry days (default: 30 days)
+// Create a new link with optional expiry days (default: 30 days, 0 = never expires)
 export async function createLink(
   code: string,
   targetUrl: string,
   expiryDays: number = 30
 ): Promise<Link> {
-  const { rows } = await sql<Link>`
-    INSERT INTO links (code, target_url, expires_at)
-    VALUES (
-      ${code},
-      ${targetUrl},
-      CURRENT_TIMESTAMP + ${expiryDays} * INTERVAL '1 day'
-    )
-    RETURNING *
-  `;
+  let rows;
+
+  if (expiryDays === 0) {
+    // Never expires - set expires_at to NULL
+    const result = await sql<Link>`
+      INSERT INTO links (code, target_url, expires_at)
+      VALUES (${code}, ${targetUrl}, NULL)
+      RETURNING *
+    `;
+    rows = result.rows;
+  } else {
+    // Expires after specified days
+    const result = await sql<Link>`
+      INSERT INTO links (code, target_url, expires_at)
+      VALUES (
+        ${code},
+        ${targetUrl},
+        CURRENT_TIMESTAMP + ${expiryDays} * INTERVAL '1 day'
+      )
+      RETURNING *
+    `;
+    rows = result.rows;
+  }
+
   return rows[0];
 }
 

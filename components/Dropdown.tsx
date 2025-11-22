@@ -43,7 +43,7 @@ export default function Dropdown({ options, value, onChange, label }: DropdownPr
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-2 text-left bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition flex items-center justify-between hover:border-gray-400"
+        className="w-full px-4 py-2 text-left bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition flex items-center justify-between hover:border-gray-400 cursor-pointer"
       >
         <span className="text-gray-900">{selectedOption?.label}</span>
         <svg
@@ -66,7 +66,7 @@ export default function Dropdown({ options, value, onChange, label }: DropdownPr
                 onChange(option.value);
                 setIsOpen(false);
               }}
-              className={`w-full px-4 py-2.5 text-left hover:bg-orange-50 transition ${
+              className={`w-full px-4 py-2.5 text-left hover:bg-orange-50 transition cursor-pointer ${
                 value === option.value ? 'bg-orange-100 text-orange-700 font-medium' : 'text-gray-700'
               }`}
             >

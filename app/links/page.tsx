@@ -54,18 +54,37 @@ export default function LinksPage() {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Never';
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 30) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
+    // Ensure we're parsing the UTC timestamp correctly
+    // PostgreSQL returns timestamps without 'Z', so append it if missing
+    const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+    const date = new Date(utcDateString);
+
+    // Format: "Nov 23, 2025 3:45 PM"
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const getDaysBeforeExpiry = (expiresAt: string | null) => {
+    if (!expiresAt) return 'Never';
+
+    // Ensure we're parsing the UTC timestamp correctly
+    const utcDateString = expiresAt.endsWith('Z') ? expiresAt : expiresAt + 'Z';
+    const expiryDate = new Date(utcDateString);
+    const now = new Date();
+    const diffMs = expiryDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return 'Expired';
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return '1 day';
+    return `${diffDays} days`;
   };
 
   const filteredLinks = links.filter(
@@ -83,7 +102,7 @@ export default function LinksPage() {
         </div>
         <Link
           href="/"
-          className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium"
+          className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium cursor-pointer"
         >
           + Create New
         </Link>
@@ -122,6 +141,7 @@ export default function LinksPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Target URL</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Clicks</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Clicked</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Days Before Expiry</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -150,17 +170,28 @@ export default function LinksPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(link.last_clicked_at)}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {getDaysBeforeExpiry(link.expires_at)}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <button
                         onClick={() => copyToClipboard(link.code)}
-                        className="text-orange-600 hover:text-orange-800 font-medium mr-3"
+                        className="inline-flex items-center gap-1.5 text-orange-600 hover:text-orange-800 font-medium mr-4 transition cursor-pointer"
+                        title="Copy link"
                       >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
                         Copy
                       </button>
                       <button
                         onClick={() => handleDelete(link.code)}
-                        className="text-red-600 hover:text-red-800 font-medium"
+                        className="inline-flex items-center gap-1.5 text-red-600 hover:text-red-800 font-medium transition cursor-pointer"
+                        title="Delete link"
                       >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                         Delete
                       </button>
                     </td>

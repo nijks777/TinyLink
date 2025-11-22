@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [success, setSuccess] = useState('');
 
   const expiryOptions = [
+    { label: 'Never', value: '0' },
     { label: '15 days', value: '15' },
     { label: '30 days', value: '30' },
     { label: '45 days', value: '45' },
@@ -110,26 +111,11 @@ export default function Dashboard() {
             <button
               type="submit"
               disabled={formLoading}
-              className="w-full px-6 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 focus:ring-4 focus:ring-orange-300 disabled:opacity-50 transition shadow-md"
+              className="w-full px-6 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 focus:ring-4 focus:ring-orange-300 disabled:opacity-50 transition shadow-md cursor-pointer"
             >
               {formLoading ? 'Creating...' : 'Create Short Link'}
             </button>
           </form>
-        </div>
-
-        <div className="grid grid-cols-3 gap-4 mt-8">
-          <div className="text-center p-4 bg-white rounded-lg border">
-            <div className="text-3xl font-bold text-orange-500 mb-1">Fast</div>
-            <div className="text-sm text-gray-600">Instant creation</div>
-          </div>
-          <div className="text-center p-4 bg-white rounded-lg border">
-            <div className="text-3xl font-bold text-orange-500 mb-1">Secure</div>
-            <div className="text-sm text-gray-600">Auto-expiry</div>
-          </div>
-          <div className="text-center p-4 bg-white rounded-lg border">
-            <div className="text-3xl font-bold text-orange-500 mb-1">Track</div>
-            <div className="text-sm text-gray-600">Click analytics</div>
-          </div>
         </div>
       </div>
     </div>

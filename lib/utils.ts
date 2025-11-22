@@ -21,8 +21,26 @@ export function validateUrl(url: string): boolean {
   }
 }
 
-// Validate code format: [A-Za-z0-9]{6,8}
+// Reserved codes that cannot be used (to avoid route conflicts)
+const RESERVED_CODES = [
+  'api',
+  'links',
+  'deleted',
+  'admin',
+  'dashboard',
+  '_next',
+  'static',
+];
+
+// Validate code format: [A-Za-z0-9]{6,8} and not reserved
 export function validateCode(code: string): boolean {
   const codeRegex = /^[A-Za-z0-9]{6,8}$/;
-  return codeRegex.test(code);
+
+  // Check format
+  if (!codeRegex.test(code)) return false;
+
+  // Check if code is reserved (case-insensitive)
+  if (RESERVED_CODES.includes(code.toLowerCase())) return false;
+
+  return true;
 }
