@@ -6,7 +6,7 @@ import { generateRandomCode, validateUrl, validateCode } from '@/lib/utils';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { url, code } = body;
+    const { url, code, expiryDays = 30 } = body;
 
     // Validate URL
     if (!url || typeof url !== 'string') {
@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create the link
-    const link = await createLink(shortCode, url);
+    // Create the link with expiry days (default: 30, options: 15, 30, 45)
+    const link = await createLink(shortCode, url, expiryDays);
 
     return NextResponse.json(link, { status: 201 });
   } catch (error) {

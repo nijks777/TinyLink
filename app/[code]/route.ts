@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLinkByCode, incrementClicks } from '@/lib/db';
+import { getLinkByCode, incrementClicks, isLinkExpired, deleteLink } from '@/lib/db';
 
 // GET /:code - Redirect to target URL
 export async function GET(
@@ -13,6 +13,17 @@ export async function GET(
     if (!link) {
       return NextResponse.json(
         { error: 'Link not found' },
+        { status: 404 }
+      );
+    }
+
+    // Check if link has expired
+    const expired = await isLinkExpired(code);
+    if (expired) {
+      // Delete expired link
+      await deleteLink(code);
+      return NextResponse.json(
+        { error: 'Link expired' },
         { status: 404 }
       );
     }
