@@ -18,10 +18,10 @@ export async function getAllLinks(): Promise<Link[]> {
   return rows;
 }
 
-// Get a single link by code
+// Get a single link by code (case-insensitive)
 export async function getLinkByCode(code: string): Promise<Link | null> {
   const { rows } = await sql<Link>`
-    SELECT * FROM links WHERE code = ${code}
+    SELECT * FROM links WHERE LOWER(code) = LOWER(${code})
   `;
   return rows[0] || null;
 }
@@ -59,27 +59,27 @@ export async function createLink(
   return rows[0];
 }
 
-// Delete a link by code
+// Delete a link by code (case-insensitive)
 export async function deleteLink(code: string): Promise<boolean> {
   const result = await sql`
-    DELETE FROM links WHERE code = ${code}
+    DELETE FROM links WHERE LOWER(code) = LOWER(${code})
   `;
   return result.rowCount !== null && result.rowCount > 0;
 }
 
-// Increment click count and update last_clicked_at
+// Increment click count and update last_clicked_at (case-insensitive)
 export async function incrementClicks(code: string): Promise<void> {
   await sql`
     UPDATE links
     SET clicks = clicks + 1, last_clicked_at = CURRENT_TIMESTAMP
-    WHERE code = ${code}
+    WHERE LOWER(code) = LOWER(${code})
   `;
 }
 
-// Check if link is expired
+// Check if link is expired (case-insensitive)
 export async function isLinkExpired(code: string): Promise<boolean> {
   const { rows } = await sql`
-    SELECT expires_at FROM links WHERE code = ${code}
+    SELECT expires_at FROM links WHERE LOWER(code) = LOWER(${code})
   `;
 
   if (!rows[0] || !rows[0].expires_at) {
